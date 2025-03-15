@@ -45,11 +45,26 @@ The first few rows of the cleaned dataframe are shown below:
 
 #### State Choropleths
 First, we wanted to explore the average power duration by state to get a sense of how the power outage duration is distributed across the country.
-(map)
+<iframe
+  src="assets/choropleth_map-duration-outage-by-state.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 Then we looked at a choropleth map for the number of power outages by state.
-(map)
+<iframe
+  src="assets/choropleth_map_2-num-outage-by-state.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 Then we looked at the average number of customers affected by state.
-(map)
+<iframe
+  src="assets/choropleth_map_3-customers-outage-by-state.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 
 #### Climate Region Choropleths
