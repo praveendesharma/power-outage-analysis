@@ -39,7 +39,13 @@ Before we begin our analysis, we need to clean our dataset. To do so, we perofrm
 4. Lastly, We only need to know if an outage is affected by a hurricane or not - we do not need to know the name of the hurricane for the purposes of our exploration. Hence, we decided to create a new column `is_hurricane` that contains *True* for all corresponding values in `HURRICANE.NAMES` that were not missing, and *False* for all corresponding vlaues that were missing (since this indicated that the outage was not affected by a hurricane).
 
 The first few rows of the cleaned dataframe are shown below:
-
+| OBS | YEAR | MONTH | U.S._STATE | OUTAGE.DURATION | CLIMATE.REGION | CAUSE.CATEGORY | CUSTOMERS.AFFECTED | POPULATION | PCT_LAND | OUTAGE.START | OUTAGE.RESTORATION | is_hurricane |
+|-----|------|-------|------------|-----------------|----------------|----------------|---------------------|------------|----------|--------------|---------------------|--------------|
+| 1 | 2011 | 7 | Minnesota | 3060.0 | East North Central | severe weather | 70000.0 | 5.35e+06 | 91.59 | 2011-07-01 17:00:00 | 2011-07-03 20:00:00 | False |
+| 2 | 2014 | 5 | Minnesota | 1.0 | East North Central | intentional attack | NaN | 5.46e+06 | 91.59 | 2014-05-11 18:38:00 | 2014-05-11 18:39:00 | False |
+| 3 | 2010 | 10 | Minnesota | 3000.0 | East North Central | severe weather | 70000.0 | 5.31e+06 | 91.59 | 2010-10-26 20:00:00 | 2010-10-28 22:00:00 | False |
+| 4 | 2012 | 6 | Minnesota | 2550.0 | East North Central | severe weather | 68200.0 | 5.38e+06 | 91.59 | 2012-06-19 04:30:00 | 2012-06-20 23:00:00 | False |
+| 5 | 2015 | 7 | Minnesota | 1740.0 | East North Central | severe weather | 250000.0 | 5.49e+06 | 91.59 | 2015-07-18 02:00:00 | 2015-07-19 07:00:00 | False |
 
 ### Univariate Analysis
 
@@ -69,17 +75,42 @@ Then we looked at the average number of customers affected by state.
 
 #### Climate Region Choropleths
 Similarly, we wanted to explore the average power duration by climate region to get a sense of how the power outage duration is distributed across these regions.
-(map)
+<iframe
+  src="assets/choropleth_climate-duration-outage-by-cregion.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 Then we looked at a choropleth map for the number of power outages by climate regions
-(map)
+<iframe
+  src="assets/choropleth_climate2-num-outage-by-cregion.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 Then we looked at the average number of customers affected by climate regions
-(map)
+<iframe
+  src="assets/choropleth_climate3-customer-outage-by-cregion.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 
 #### Total Population Choropleths by State and Climate Regions
 In light of all the interesting patterns and unexpected insights we gained from the previous choropleths, we decided to map a distribution of populations by both states and climate regions to see if it could – to some extent – explain some of these patterns.
-(map)
-
+<iframe
+  src="assets/choropleth_state_pop-pop-by-state.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+<iframe
+  src="assets/choropleth_climate_pop-pop-by-cregion.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 #### Insights from Univariate Analysis
 From the 8 choropleths above we see can glean insights – some obvious others not so much. 
@@ -121,23 +152,64 @@ From the 8 choropleths above we see can glean insights – some obvious others n
 #### Distribution of Outage Duration by Climate Regions
 
 First, we explored the distribution of outage durations by climate region.
-(plot)
+<iframe
+  src="assets/bivariate1.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 Then we explore the average outage duration by cause for each climate region
-(plot)
+<iframe
+  src="assets/bivariate2.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 Next we explored the relationship between outage duration and customers affected
-(plot)
+<iframe
+  src="assets/bivariate3.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 Then, we decided to stratify our data by state and then climate region to see if we derive any new relationships between these variables.
-(plot)
+<iframe
+  src="assets/bivariate4.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+<iframe
+  src="assets/bivariate5.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 Next, we plotted outage duration against population.
-(plot)
-
+<iframe
+  src="assets/bivariate6.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 Since the graph above was convoluted and did not hint at any real relationship between the variables in question, we decided to once again stratify our data by both state and climate region to see if any relationship can be derived.
-(plot)
+<iframe
+  src="assets/bivariate7.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
+<iframe
+  src="assets/bivariate8.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 #### Insights from Bivariate analysis
 
@@ -172,8 +244,15 @@ Since the graph above was convoluted and did not hint at any real relationship b
 
 First, we will make a pivot table that encapsulates the average outage duration of each cause by their causes. We will also add an overall outage duration average by climate region column to check for instances of Simpson's Paradox.
 
-(make the table)
-
+| CLIMATE.REGION | equipment failure | fuel supply emergency | intentional attack | islanding | public appeal | severe weather | system operability disruption | Overall_Outage_Duration_Avg |
+|---------------|-------------------|----------------------|-------------------|-----------|--------------|---------------|---------------------------|---------------------------|
+| East North Central | 2643.33 | 3997.25 | 2376.05 | 1.00 | 733.00 | 4434.82 | 2610.00 | 5352.04 |
+| Northeast | 215.80 | 14629.57 | 195.98 | 881.00 | 2655.00 | 4429.90 | 773.50 | 2991.66 |
+| South | 295.78 | 17482.50 | 325.61 | 493.50 | 1163.98 | 4391.35 | 866.07 | 2846.10 |
+| ... | ... | ... | ... | ... | ... | ... | ... | ... |
+| Southwest | 113.80 | 76.00 | 265.67 | 2.00 | 2275.00 | 11572.90 | 329.22 | 1566.14 |
+| Northwest | 702.00 | 1.00 | 373.81 | 73.33 | 898.00 | 4838.00 | 141.00 | 1284.50 |
+| West North Central | 61.00 | 0.00 | 23.50 | 68.20 | 439.50 | 2442.50 | 0.00 | 696.56 |
 
 #### Insights
 Looking at the pivot table above, we can see some interesting things. 
@@ -205,7 +284,19 @@ The `OUTAGE.DURATION` Column is critical to our exploration and therefore we wil
 
 We conducted a permutation test to check the relationship between `OUTAGE.DURATION` and `CAUSE.CATEGORY`, using Total Variation Distance (TVD) as our test statistic since both variables are categorical.
 
-(plots)
+<iframe
+  src="assets/missingness1.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+<iframe
+  src="assets/missingness2.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 Our analysis of the missingness in `OUTAGE.DURATION` reveals a significant dependency on `CAUSE.CATEGORY` with a p-value of 0.0057 which is well below the signicance level of 0.05. Therefore we reject the null hypothesis which is that the missing values of `OUTAGE.DURATION` are independent of `CAUSE.CATEGORY`.
 
@@ -213,7 +304,13 @@ The observed Total Variation Distance of 0.22 between the `CAUSE.CATEGORY` distr
 
 We also conducted a permutation test to check the relationship between `OUTAGE.DURATION` and `POPULATION`, using difference in absolute means as our test statistic.
 
-(plots)
+<iframe
+  src="assets/missingness3.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
 
 Our analysis of the missingness in `OUTAGE.DURATION` reveals no significant dependency on `POPULATION` values. That is, we fail to reject the null hypothesis which is that the missingness is independent of Population. This is because the p-value we got was 0.3523 which is well above the significance level of 0.05.
 
@@ -231,7 +328,12 @@ One of the most common themes during our bivariate analysis was that the East No
 
 **Alternative Hypothesis**: The distribution of outage durations in the East North Central climate region does not come from the same underlying distribution as outage durations across all regions. That is to say that there is a systematic difference.
 
-(plots)
+<iframe
+  src="assets/hyp1.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 
 Based on our permutation test, we obtained a p-value of 0, which is sinificantly lower than our significance level of 0.05. This means we reject the null hypothesis.
