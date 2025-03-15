@@ -8,7 +8,20 @@ We will explore the following question: What is the relationship between the dif
 
 We plan to explore how these classifications correlate with the length of power outages by developing models to analyse the data. This exploration is significant because understanding whether certain states or climate regions are more prone to prolonged outages can help energy providers and policymakers design targeted strategies. For instance, if a specific climate region consistently experiences longer outage durations, it could signal the need for improved grid resilience or more efficient emergency protocols, ultimately leading to more effective and proactive management of power infrastructure.
 
-(Need to create a table with relevant columns and description)
+| Column | Description |
+|--------|-------------|
+| 'YEAR' | Year an outage occurred |
+| 'MONTH' | Month an outage occurred |
+| 'U.S._STATE' | State the outage occurred in |
+| 'OUTAGE.DURATION' | Duration of outage events (in minutes) |
+| 'CLIMATE.REGION' | U.S. Climate regions as specified by National Centers for Environmental Information (9 Regions) |
+| 'CAUSE.CATEGORY' | Categories of all the events causing the major power outages |
+| 'HURRICANE.NAMES' | If the outage is due to a hurricane, then the hurricane name is given by this variable |
+| 'CUSTOMERS.AFFECTED' | Number of customers affected by the power outage event |
+| 'POPULATION' | Population in the U.S. state in a year |
+| 'PCT_LAND' | Percentage of land area in the U.S. state as compared to the overall land area in the continental U.S. (in %) |
+| 'OUTAGE.START' | Date and time when the outage event started |
+| 'OUTAGE.RESTORATION' | Date and time when power was restored to all the customers |
 
 
 **Data Cleaning and Exploratory Data Analysis**
