@@ -384,5 +384,134 @@ We've selected Root Mean Squared Error (RMSE) as our evaluation metric for the f
 **Sensitivity to large errors:** RMSE penalizes large prediction errors more heavily than small ones (due to the squaring of errors). This is particularly important in our context because underestimating a long outage by several hours could have serious consequences for emergency responses and similarly overestimating short outages might unnecessarily escalate response efforts
 
 We considered other metrics like Mean Absolute Error (MAE) and R² but determined RMSE to be most appropriate given the high cost of large prediction errors in emergency response planning.
-    
+
+
+## Baseline Model
+
 For our baseline model, we will implement a Random Forest Regressor, which is well-suited for handling the mix of categorical and numerical features in our dataset while capturing potential non-linear relationships between the features and outage duration.
+
+### Model Evaluation Results
+RMSE for training set: 2328.89442745741 minutes
+RMSE for testing set: 5153.596924069349 minutes
+
+### Interpreting the results
+
+1. The large gap between training and testing RMSE, more than 2 times, suggests that the model is overfitting to the training data. 
+2. These numbers establish a baseline, but clearly indicate there's significant room for improvement. For emergency response planning, predictions that could be off by nearly 4 days would not provide sufficient reliability.
+3. The high testing error suggests high variance in your model. The model might be creating deep trees that make very specific predictions based on training patterns that don't generalize.
+
+## Final Model
+
+Based on our analysis of the baseline model's RMSE values, it was clear to us that our Random Forest Regressor was struggling with generalizability and precision. The substantial gap between training and testing performance, 2362.84 vs. 5462.88 minutes, indicates that while Random Forest captures some patterns in the data, it most likely created overly complex trees that memorized the training data rather than learning to generalize relationships.
+
+This performance gap led us to choose a model that can better handle the complex, potentially non-linear relationships while maintaining strong generalization capabilities. This is when we came across gradient boosting regressors which offered a compelling alternative for our final model because they build an ensemble of weak prediction models sequentially, with each new model focusing specifically on correcting the errors of previous models. We also believe that unlike random forest regressor, which build independent trees in parallel, gradient boosting regressor's sequential approach may be better suited to capture the nuanced patterns in outage duration data.
+
+### Feature Engineering
+#### Season Feature
+The Season feature transforms the numerical column MONTHS into categorical seasons to capture seasonal weather patterns that may affect power infrastructure. Winter months often experience ice storms and heavy snow, while summer brings thunderstorms and heat-related equipment failures. By grouping months into meaningful seasonal categories, we believe the model can identify stronger relationships between time of year and outage duration than with just numerical month values.
+
+#### Hurricane Season Interaction
+This feature creates a specific indicator for hurricanes occurring during the official hurricane season (June-October). Hurricane impacts during peak season tend to be more intense and widespread as compared to the off-season hurricanes. This feature will help the model distinguish between wether the hurricane is in season or off-season. 
+#### Customer Impact Ratio Feature
+We engineered a Customer Impact Ratio feature that calculates the percentage of a region's total population affected by each power outage. This ratio provides crucial insight into the relative severity and scale of outages across different regions, regardless of their absolute population size.
+
+### Making the Model
+
+First, we categorized our features into distinct groups based on their data types and required transformations:
+
+**Original categorical features** includes climate region, outage cause category, and hurricane indicators
+
+**Engineered categorical features** includes our newly created season and hurricane season variables
+
+**Standard scale features** includes year and land percentage, which benefit from normalization
+
+**Quantile transform features** addresses highly skewed distributions like customer counts and population metrics
+
+The pipeline construction follows a logical sequence:
+1. **Feature engineering step** applies our custom transformations using a FunctionTransformer
+2. **Preprocessing step** uses ColumnTransformer to apply the appropriate transformations to each feature group:
+   - OneHotEncoder for categorical variables (with drop='first' to avoid multicollinearity)
+   - StandardScaler to normalize year and land percentage features. We do this because unlike linear models, tree-based algorithms like gradient boosting are highly sensitive to the scale of input features
+   - QuantileTransformer to normalize the distribution of highly skewed features like population metrics
+
+3. **Model step** implements a GradientBoostingRegressor as our prediction algorithm
+
+
+### Hyperparameter Tuning
+For our Gradient Boosting Regressor, we plan to tune the following hyperparameters:
+
+n_estimators [50, 100, 200, 300]: This parameter controls the number of boosting stages (trees). More trees generally reduce the error but increase computation time and risk of overfitting. We're testing moderate values to balance complexity and performance.
+
+max_depth [3, 5, 7, 9]: This limits the maximum depth of each tree. Deeper trees can capture more complex patterns but risk overfitting to noise in the training data. We're testing a range from shallow to moderately deep trees.
+
+learning_rate [0.01, 0.05, 0.1]: This controls how much each tree contributes to the final prediction. Smaller values require more trees but often yield better performance. We're testing small values to ensure stable improvements during the gradient boosting process.
+
+min_samples_split [2, 5, 10]: This sets the minimum number of samples required to split an internal node. Higher values prevent creating nodes with few samples, which helps prevent overfitting. We're testing values that represent different levels of regularization.
+
+#### Grid Search Results
+
+Best Gradient Boosting parameters: {'regressor__learning_rate': 0.01, 'regressor__max_depth': 9, 'regressor__min_samples_split': 2, 'regressor__n_estimators': 50}
+Best Gradient Boosting CV RMSE: 5566.043095740817
+
+
+#### Interpreting the Grid Search Results
+
+1. **learning_rate:** 0.01 - a relatively small learning rate of 0.01 was the most optimal. This suggests that the model benefits from making small, careful steps during training to avoid overshooting the optimal solution.
+2. **max_depth:** 9 - Trees with a maximum depth of 9 levels performed best. This is a moderate depth that allows the model to capture reasonably complex relationships in the data without overfitting to the noise.
+3. **min_samples_split:** 2 - The minimum of 2 samples required to split a node was optimal. This allows the model to create very specific splits, even for less common outage scenarios. 
+4. **n_estimators:** 50 - The model performed best with 50 trees. This is the lower end of the tested range (50, 100, 200, 300), suggesting that more trees weren't necessary for improvement. 
+5. **Cross-Validation RMSE:** 5566.04 minutes - This represents the average error in the model's predictions across all cross-validation folds. While this might seem high compared to the baseline model's RMSE, the baseline RMSE came from a single train-test split, while the CV RMSE represents performance across multiple data folds.
+
+
+#### Model Evaluation Results
+RMSE: 4294.763166121633 minutes
+Improvement over baseline: 16.66474446103111%
+
+#### Interpreting the Results
+The final model achieves a staggering 16.66% reduction in RMSE compared to the baseline model (5,153.60 minutes).
+This result indicates that the engineered features optimized hyperparameters have successfully captured additional patterns in outage durations that were missed in the baseline model.
+
+
+## Fairness Analysis
+
+### Group Selection and Rationale
+
+For our fairness analysis, we evaluated whether our final model performs equally well for hurricane-related outages versus non-hurricane-related outages.
+We believe this comparison is particularly relevant because:
+- Hurricane-related outages are often more severe and widespread than other types of outages – generally speaking
+- The infrastructure damage from hurricanes can be more complex and difficult to repair
+- These two groups represent fundamentally different outage scenarios that power companies must respond to
+- Accurate predictions for both groups are crucial for effective resource allocation during emergencies
+
+
+### Metric of Evaluation
+
+We chose Root Mean Squared Error (RMSE) as our evaluation metric, which is consistent with our approach throughout the project. The RMSE measures the average magnitude of prediction errors in minutes, which directly relates to our prediction task of estimating outage durations.
+
+
+### Evaluation Results
+
+RMSE for hurricane outages: 7260.250758981379 minutes
+RMSE for non-hurricane outages: 4097.652727316633 minutes
+Observed difference in RMSE: 3162.5980316647456 minutes
+
+(RMSE Comparison Plot)
+
+
+### Hypotheses:
+**Null Hypothesis:** Our model is fair. The RMSE for hurricane outages and non-hurricane outages are roughly the same, and any differences are due to random chance.
+
+**Alternative Hypothesis:** Our model is unfair. The RMSE for hurricane outages is different from the RMSE for non-hurricane outages.
+
+
+### Permutation Test
+**Test Statistic:** We used the absolute difference in RMSE between the two groups as our test statistic. 
+
+**Significance Level:** We chose a standard significance level of 0.05 for our analysis
+
+(Permutation plot)
+
+p-value: 0.044295570442955706
+
+### Interpreting the results
+Since the **p-value** is 0.044 which is less than the significance level we established of 0.05, this result is statistically significant. That is, we reject the null hypothesis. This provides evidence that our model performs differently for hurricane and non-hurricane outages. This permutation test suggests that the observed difference in prediction accuracy - measured by RMSE - between these two categories is unlikely to be due to random chance alone. 
