@@ -129,3 +129,158 @@ Then we explore the average outage duration by cause for each climate region
 Next we explored the relationship between outage duration and customers affected
 (plot)
 
+Then, we decided to stratify our data by state and then climate region to see if we derive any new relationships between these variables.
+(plot)
+
+Next, we plotted outage duration against population.
+(plot)
+
+Since the graph above was convoluted and did not hint at any real relationship between the variables in question, we decided to once again stratify our data by both state and climate region to see if any relationship can be derived.
+(plot)
+
+
+#### Insights from Bivariate analysis
+
+##### Regional Duration Patterns (Graph 1)
+1. The East North Central climate region shows the highest median outage duration (around 3,000 minutes) with a much higher interquartile range than other regions. 
+2. The Southwest and West North Central climate regions show the shortest median outage durations (around 70-100 minutes). 
+3.  The Northeast and East North Central climate regions both have higher medians, but their distribution shapes differ significantly. East North Central has a wider IQR, indicating more inconsistent outage times, while Northeast's narrower distribution suggests more predictable, though still lengthy, outage times.
+
+##### Outage Cause and Region Interaction (Graph 2)
+
+1. East North Central: Extremely long outage durations for both fuel supply emergencies, approximately 34,000 minutes, and equipment failures – approximately 26,000 minutes.
+2. Southwest: Severe weather causes extremely long outages – approximately 11,500 minutes.
+3. South: Again, fuel supply emergencies lead to long outages – approximately 17,500 minutes.
+
+##### Outage Duration and Customers Affected (Graphs 3, 4, 5)
+1. There is a slightly negative and non-linear correlation between the number of customers affected and outage duration. This was somewhat unexpected as we thought if more people are affected by an outage, it is probably more critical and therefore will take longer to fix. 
+2. Graph 4 reveals that states with similar numbers of average affected customers can have dramatically different average outage durations. For example, take the states of Oregon and Wisconsin. The former has an average of approximately 43,000 customers affected while the latter has a marginally higher average of approximately 45,000 customers affected. Despite this small difference, the average outage duration for Oregon is roughly 776 minutes whereas for West Virgina it is roughly 7900 minutes – a difference of more than 10 times. 
+3. In Graph 5, the East North Central climate region (in orange) demonstrates the most staggering pattern. It has very long outage durations – roughly 5352 minutes on average – all while having a moderate number of affected customers aproximately 150,000. This is in line with previous visualisations conducted during the univariate analysis. 
+
+##### Outage duration and Population (Graph 6, 7, 8):
+
+1. Somewhat counterintuitively, states with moderate populations (5-15M) show the highest average outage durations, with some exceeding 7,000 minutes such as Wisconsin and Michigan. On the other hand, the most populated states like California, Texas, and Florida actually have shorter average durations than many medium-sized states.
+2. States with populations under 3M generally experience shorter outage durations. That being there are some exception to this such as Nebraska, the District of Columbia, and West Virginia.
+3. The East North Central climate region stands out again maintaining the longest average duration regardless of its middling population.
+
+##### Interesting Insights
+1. When all visualizations are considered together, the strongest insight is that regional factors have a more significant influence on outage duration than simple metrics like the number of people affected or population size. In particular, the East North Central region demonstrates a concerning pattern of lengthy outages across nearly all analyses.
+2. This points to your research question's answer: there is indeed a strong relationship between region classification and outage duration, but the relationship is complex and multifaceted, influenced by region-specific vulnerabilities to different outage causes and other unknown factors rather than simply population or number of people affected.
+
+
+### Interesting Aggregates
+
+First, we will make a pivot table that encapsulates the average outage duration of each cause by their causes. We will also add an overall outage duration average by climate region column to check for instances of Simpson's Paradox.
+
+(make the table)
+
+
+#### Insights
+Looking at the pivot table above, we can see some interesting things. 
+    
+1. The first and the most interesting pattern that stood out to us was in the equipment failure column. The average outage duration due equipment failure in the East North Central climate region is 26,435 minutes – roughly 18 days! This is over 40 times longer than the next in line for equipment failure which is the Northwest with only 702 minutes on average – roughly 12 hours. 
+
+2. There exist no instances of Simpson's paradox within this pivot table. That being said, the Southeast and West regions very close with the Southeast having a higher average in only 2 of the 7 cause categories – that too by a relatively small margin – but the overall average outage duration of the former is roughly 590 minutes longer than the latter. 
+
+
+
+## Assessment of Missingness
+
+Several columns in our dataset contained missing values, and these were handled appropriately based on their missingness dependency.
+
+Since `OUTAGE.START` and `OUTAGE.RESTORATION` are not columns we will be taking into consideration when training our model, we decided to drop these columns altogether.
+
+### NMAR Analysis
+The `CUSTOMERS.AFFECTED` column represents the number of customers who experienced power loss during an power outage event. This column in the dataset contains missing values. We believe that these values are Not Missing At Random (NMAR) because the missingness is likely related to what those missing values would have been. In many cases, the exact number of affected customers may not be recorded when the impact is particularly severe or widespread, making it difficult to perform accurate counts. Power companies might struggle to track customer impact during catastrophic events when their monitoring systems themselves are compromised or overwhelmed. Some outages might occur in remote areas with less sophisticated tracking infrastructure, further complicating customer impact assessment. Therefore missingness in `CUSTOMERS.AFFECTED` likely depends on the unobserved values themselves. This makes `CUSTOMERS.AFFECTED` a clear example of NMAR data.
+
+We decided to impute missing values in this column using quantiles.
+
+### MD Analysis
+Upon exploring missing values in `CLIMATE.REGION`, we found that the missing values corresponded to either Hawaii or Alaska. Upon external research, we found that these states do not fall under any of the general climate regions for the U.S., implying that these values in the dataset are missing by design (MD). Since our analysis focuses on exploring outage durations across different climate regions, these entries are not relevant and can therefore be dropped.
+
+
+### MAR Analysis
+#### Checking if Missing Values in `OUTAGE.DURATION` are MAR or MCAR
+The `OUTAGE.DURATION` Column is critical to our exploration and therefore we will have to address the missing values in this column.
+
+We conducted a permutation test to check the relationship between `OUTAGE.DURATION` and `CAUSE.CATEGORY`, using Total Variation Distance (TVD) as our test statistic since both variables are categorical.
+
+(plots)
+
+Our analysis of the missingness in `OUTAGE.DURATION` reveals a significant dependency on `CAUSE.CATEGORY` with a p-value of 0.0057 which is well below the signicance level of 0.05. Therefore we reject the null hypothesis which is that the missing values of `OUTAGE.DURATION` are independent of `CAUSE.CATEGORY`.
+
+The observed Total Variation Distance of 0.22 between the `CAUSE.CATEGORY` distributions when `OUTAGE.DURATION` is missing versus when it is not missing falls outside what would be expected by random chance, as shown in the histogram above. This provides strong evidence that the missingness mechanism for `OUTAGE.DURATION` is MAR rather than MCAR, since the probability of a missing duration value depends on the cause of the power outage. More specifically, certain types of outage causes appear to be associated with a higher likelihood of missing duration data. 
+
+We also conducted a permutation test to check the relationship between `OUTAGE.DURATION` and `POPULATION`, using difference in absolute means as our test statistic.
+
+(plots)
+
+Our analysis of the missingness in `OUTAGE.DURATION` reveals no significant dependency on `POPULATION` values. That is, we fail to reject the null hypothesis which is that the missingness is independent of Population. This is because the p-value we got was 0.3523 which is well above the significance level of 0.05.
+
+The empirical distribution of permuted absolute differences in means shows that our observed absolute difference of 1,434,011.04 falls within the range of what would be expected due to random chance. Approximately 35.23% of the permuted samples produced absolute differences in means as extreme or more extreme than what we observed in the actual data.
+
+This finding suggests that the POPULATION variable does not significantly influence whether `OUTAGE.DURATION` values are missing. In other words, outages in areas with higher populations are not more or less likely to have missing duration data compared to outages in areas with lower populations.
+
+We conducted conditional mean imputation for `OUTAGE.DURATION` because the analysis proved it's MAR, with  the missingness depending significantly on `CAUSE.CATEGORY`. This approach will preserve the important relationship between outage cause and duration.
+
+
+## Hypothesis Testing
+One of the most common themes during our bivariate analysis was that the East North Central stood out in terms out average outage duration irrespective of how the data was stratified. This led us to question if the outage duration distribution of this region comes from the overall distribution of outage duration. To test this the two columns we will be exploring are `OUTAGE.DURATION` and `CLIMATE.REGION` and  will be performing a hypothesis test. 
+
+**Null Hypothesis**: The distribution of outage durations in the East North Central climate region comes from the same underlying distribution as outage durations across all climate regions. That is to say that any observed differences are due to random chance.
+
+**Alternative Hypothesis**: The distribution of outage durations in the East North Central climate region does not come from the same underlying distribution as outage durations across all regions. That is to say that there is a systematic difference.
+
+(plots)
+
+
+Based on our permutation test, we obtained a p-value of 0, which is sinificantly lower than our significance level of 0.05. This means we reject the null hypothesis.
+
+We can say that the distribution of outage durations in the East North Central climate region does not come from the same underlying distribution as outage durations across all climate regions. The observed differences in outage durations between the East North Central region and other regions are not due to random chance. Instead, these differences represent a statistically significant systematic difference within the two distributions. 
+
+Our analysis showed that the East North Central climate region experiences considerably longer power outages on average (mean duration of approximately 5,411 minutes) compared to the overall average across all regions (approximately 2707 minutes).
+
+
+
+## Framing a Prediction Problem
+Considering that through parts 2-4 we have been exlporing the impact of various variables on outage duration, we thought it was fitting to try and predict outage duration. At the time of prediction we would know the following variables: YEAR, MONTH, CLIMATE.REGION, CAUSE.CATEGORY, CUSTOMERS.AFFECTED, POPULATION, is_hurricane, PCT_LAND. 
+
+For our baseline model, we will be using a RandomForestRegressor as it is a versatile model that is especially good at dealing with both categorical and numerical data. This makes it a good choice for predicting outage durations. 
+
+Our response  variable here is OUTAGE.DURATION as this is the variable we are trying to predict. 
+
+The metric we are choosing to evaluate our model is Root Mean Squared Error (RMSE). 
+
+
+Based on our exploration of power outages and their relationship with regional factors, we've identified an important prediction problem:
+forecasting the duration of power outages. This is a regression problem since we're predicting a continuous variable (time in minutes).
+
+Our response variable is OUTAGE.DURATION, which represents the length of power outages in minutes. We've chosen this variable because our earlier exploratory analysis showed interesting relationships between outage durations and regional variables, suggesting this is a meaningful prediction to pursue
+
+At the time when a prediction would need to be made, we would have access to the following features:
+
+`YEAR` and `MONTH`: Temporal information about when the outage occurs
+
+`CLIMATE.REGION`: The climate classification of the affected area
+
+`CAUSE.CATEGORY`: The general cause of the outage (e.g., severe weather, equipment failure)
+
+`CUSTOMERS.AFFECTED`: Initial estimate of the number of customers without power
+
+`POPULATION`: Population of the affected area
+
+`is_hurricane`: Binary indicator of whether the outage is hurricane-related
+
+`PCT_LAND`: Percentage of the affected area that is land (versus water)
+
+Evaluation Metric: RMSE
+
+We've selected Root Mean Squared Error (RMSE) as our evaluation metric for the following reasons:
+
+**Interpretability:** RMSE is measured in the same units as our response variable (minutes), making it inherently interpretable. A lower RMSE directly translates to more accurate predictions in terms of minutes.
+
+**Sensitivity to large errors:** RMSE penalizes large prediction errors more heavily than small ones (due to the squaring of errors). This is particularly important in our context because underestimating a long outage by several hours could have serious consequences for emergency responses and similarly overestimating short outages might unnecessarily escalate response efforts
+
+We considered other metrics like Mean Absolute Error (MAE) and R² but determined RMSE to be most appropriate given the high cost of large prediction errors in emergency response planning.
+    
+For our baseline model, we will implement a Random Forest Regressor, which is well-suited for handling the mix of categorical and numerical features in our dataset while capturing potential non-linear relationships between the features and outage duration.
