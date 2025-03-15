@@ -1,4 +1,2 @@
 title: "Analysing and Predicting Power Outage Durations"
-remote_theme: beautiful-jekyll
-plugins:
-  - jekyll-remote-theme
+theme: beautiful-jekyll
