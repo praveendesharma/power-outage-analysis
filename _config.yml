@@ -2,3 +2,5 @@ title: "Analysing and Predicting Power Outage Durations"
 remote_theme: daattali/beautiful-jekyll@5.0.0
 plugins:
   - jekyll-remote-theme
+author:
+  name: "Chinmay Bharambe & Praveen Sharma"
