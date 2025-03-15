@@ -495,7 +495,12 @@ RMSE for hurricane outages: 7260.250758981379 minutes
 RMSE for non-hurricane outages: 4097.652727316633 minutes
 Observed difference in RMSE: 3162.5980316647456 minutes
 
-(RMSE Comparison Plot)
+<iframe
+  src="assets/fair1.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 
 
 ### Hypotheses:
@@ -509,8 +514,12 @@ Observed difference in RMSE: 3162.5980316647456 minutes
 
 **Significance Level:** We chose a standard significance level of 0.05 for our analysis
 
-(Permutation plot)
-
+<iframe
+  src="assets/fair2.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
 p-value: 0.044295570442955706
 
 ### Interpreting the results
