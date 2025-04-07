@@ -43,6 +43,7 @@ Before we begin our analysis, we need to clean our dataset. To do so, we perofrm
 4. Lastly, We only need to know if an outage is affected by a hurricane or not - we do not need to know the name of the hurricane for the purposes of our exploration. Hence, we decided to create a new column `is_hurricane` that contains *True* for all corresponding values in `HURRICANE.NAMES` that were not missing, and *False* for all corresponding vlaues that were missing (since this indicated that the outage was not affected by a hurricane).
 
 The first few rows of the cleaned dataframe are shown below:
+
 | OBS | YEAR | MONTH | U.S._STATE | OUTAGE.DURATION | CLIMATE.REGION     | CAUSE.CATEGORY     | CUSTOMERS.AFFECTED | POPULATION | PCT_LAND | OUTAGE.START         | OUTAGE.RESTORATION    | is_hurricane |
 |-----|------|-------|------------|-----------------|---------------------|---------------------|--------------------|------------|----------|----------------------|------------------------|--------------|
 | 1   | 2011 | 7     | Minnesota  | 3060.0          | East North Central  | severe weather      | 70000.0            | 5.35e+06   | 91.59    | 2011-07-01 17:00:00  | 2011-07-03 20:00:00    | False        |
