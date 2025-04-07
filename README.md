@@ -43,13 +43,13 @@ Before we begin our analysis, we need to clean our dataset. To do so, we perofrm
 4. Lastly, We only need to know if an outage is affected by a hurricane or not - we do not need to know the name of the hurricane for the purposes of our exploration. Hence, we decided to create a new column `is_hurricane` that contains *True* for all corresponding values in `HURRICANE.NAMES` that were not missing, and *False* for all corresponding vlaues that were missing (since this indicated that the outage was not affected by a hurricane).
 
 The first few rows of the cleaned dataframe are shown below:
-| OBS | YEAR | MONTH | U.S._STATE | OUTAGE.DURATION | CLIMATE.REGION | CAUSE.CATEGORY | CUSTOMERS.AFFECTED | POPULATION | PCT_LAND | OUTAGE.START | OUTAGE.RESTORATION | is_hurricane |
-|-----|------|-------|------------|-----------------|----------------|----------------|---------------------|------------|----------|--------------|---------------------|--------------|
-| 1 | 2011 | 7 | Minnesota | 3060.0 | East North Central | severe weather | 70000.0 | 5.35e+06 | 91.59 | 2011-07-01 17:00:00 | 2011-07-03 20:00:00 | False |
-| 2 | 2014 | 5 | Minnesota | 1.0 | East North Central | intentional attack | NaN | 5.46e+06 | 91.59 | 2014-05-11 18:38:00 | 2014-05-11 18:39:00 | False |
-| 3 | 2010 | 10 | Minnesota | 3000.0 | East North Central | severe weather | 70000.0 | 5.31e+06 | 91.59 | 2010-10-26 20:00:00 | 2010-10-28 22:00:00 | False |
-| 4 | 2012 | 6 | Minnesota | 2550.0 | East North Central | severe weather | 68200.0 | 5.38e+06 | 91.59 | 2012-06-19 04:30:00 | 2012-06-20 23:00:00 | False |
-| 5 | 2015 | 7 | Minnesota | 1740.0 | East North Central | severe weather | 250000.0 | 5.49e+06 | 91.59 | 2015-07-18 02:00:00 | 2015-07-19 07:00:00 | False |
+| OBS | YEAR | MONTH | U.S._STATE | OUTAGE.DURATION | CLIMATE.REGION     | CAUSE.CATEGORY     | CUSTOMERS.AFFECTED | POPULATION | PCT_LAND | OUTAGE.START         | OUTAGE.RESTORATION    | is_hurricane |
+|-----|------|-------|------------|-----------------|---------------------|---------------------|--------------------|------------|----------|----------------------|------------------------|--------------|
+| 1   | 2011 | 7     | Minnesota  | 3060.0          | East North Central  | severe weather      | 70000.0            | 5.35e+06   | 91.59    | 2011-07-01 17:00:00  | 2011-07-03 20:00:00    | False        |
+| 2   | 2014 | 5     | Minnesota  | 1.0             | East North Central  | intentional attack  | NaN                | 5.46e+06   | 91.59    | 2014-05-11 18:38:00  | 2014-05-11 18:39:00    | False        |
+| 3   | 2010 | 10    | Minnesota  | 3000.0          | East North Central  | severe weather      | 70000.0            | 5.31e+06   | 91.59    | 2010-10-26 20:00:00  | 2010-10-28 22:00:00    | False        |
+| 4   | 2012 | 6     | Minnesota  | 2550.0          | East North Central  | severe weather      | 68200.0            | 5.38e+06   | 91.59    | 2012-06-19 04:30:00  | 2012-06-20 23:00:00    | False        |
+| 5   | 2015 | 7     | Minnesota  | 1740.0          | East North Central  | severe weather      | 250000.0           | 5.49e+06   | 91.59    | 2015-07-18 02:00:00  | 2015-07-19 07:00:00    | False        |
 
 ### Univariate Analysis
 
